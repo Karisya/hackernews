@@ -1,60 +1,60 @@
-import { useEffect, useState } from "react"
-import axios from "axios"
+import { useEffect, useState } from "react";
+import { List, Button, Skeleton } from "antd";
+import { fetchNewsIds, fetchNewsItem } from "../../api/newsApi"; 
 
-const NewsList = ()=>{
+const NewsList = () => {
+  const [newsList, setNewsList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const [newsList, setNewsList] = useState([])
-const [loading, setLoading]=useState(true)
-
-
-        const fetchNews=async()=>{
-            setLoading(true);
-            try{
-                const response = await axios.get(' https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty')
-                const news = await Promise.all(response.data.slice(0,100).map(async (i)=>{
-                    const story=await axios.get(`https://hacker-news.firebaseio.com/v0/item/${i}.json`)
-                    return story.data
-                }))
-               setNewsList(news)
-               console.log('loading')
-            }
-            catch(e){
-                console.log(e)
-            }
-            setLoading(false)
-        }
-
-useEffect(()=>{fetchNews()}, [])
-
-
-    
-    const handleFetch=()=>{
-        fetchNews()
+  const fetchNews = async () => {
+    setLoading(true);
+    try {
+      const newsIds = await fetchNewsIds();
+      const news = await Promise.all(
+        newsIds.map(async (id) => {
+          const story = await fetchNewsItem(id);
+          return story;
+        })
+      );
+      setNewsList(news);
+    } catch (e) {
+      console.log(e);
     }
-    
-    
-    return(
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const handleFetch = () => {
+    fetchNews();
+  };
+
+  return (
     <div>
-        <button onClick={handleFetch}>Обновить</button>
-        {loading?(<p>loading...</p>):
-        (<div>
-        {newsList.map((item)=>
-            (
-                <div>
-                <p>Название: {item.title}</p>
-                <p>Рейтинг: {item.score}</p>
-                <p>Название: {item.by}</p>
-                <p>Дата: {new Date(item.time * 1000).toLocaleString()}</p>
-<               br/>
-            </div>
-        )
-    )}
+      <Button type="primary" onClick={handleFetch} style={{ marginBottom: 16 }}>
+        Обновить
+      </Button>
+      {loading ? (
+        <Skeleton active />
+      ) : (
+        <List
+          bordered
+          dataSource={newsList}
+          renderItem={(item) => (
+            <List.Item>
+              <List.Item.Meta
+                title={<a href={item.url}>{item.title}</a>}
+                description={`Автор: ${item.by}, Рейтинг: ${item.score}`}
+              />
+              <div>{new Date(item.time * 1000).toLocaleString()}</div>
+            </List.Item>
+          )}
+        />
+      )}
     </div>
-    )
-}
-    </div>
-)
+  );
+};
 
-}
-
-export default NewsList
+export default NewsList;
