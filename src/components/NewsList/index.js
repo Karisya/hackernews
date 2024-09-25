@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { List, Button, Skeleton } from "antd";
 import { fetchNewsIds, fetchNewsItem } from "../../api/newsApi"; 
 import './style.css'
+import { Link } from "react-router-dom";
 
 const NewsList = () => {
   const [newsList, setNewsList] = useState([]);
@@ -45,11 +46,13 @@ const NewsList = () => {
           dataSource={newsList}
           renderItem={(item) => (
             <List.Item>
-              <List.Item.Meta
-                title={<a className="list__title" href={item.url}>{item.title}</a>}
-                description={`Автор: ${item.by}, Рейтинг: ${item.score}`}
-              />
-              <div>{new Date(item.time * 1000).toLocaleString()}</div>
+                <Link  to={`/news/${item.id}`}>
+                    <List.Item.Meta
+                    title={<a className="list__title" href={item.url}>{item.title}</a>}
+                    description={`Автор: ${item.by}, Рейтинг: ${item.score}`}
+                    />
+                    <div>{new Date(item.time * 1000).toLocaleString()}</div>
+                </Link>
             </List.Item>
           )}
         />

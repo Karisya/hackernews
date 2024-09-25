@@ -1,10 +1,16 @@
-import './App.css';
-import TableNews from './components/Table'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import NewsPage from './pages/NewsPage';
 
 function App() {
   return (
     <div className="App">
-      <TableNews/>
+      <Router>
+        <Routes>
+        <Route path="/" element={<HomePage/>} />
+        <Route path="/news/:id" element={<NewsPage />} />
+        </Routes>
+      </Router>
     </div>
   );
 }
